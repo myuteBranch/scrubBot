@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
@@ -83,6 +84,25 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "!sendMe" {
 		ch, _ := s.UserChannelCreate(m.Author.ID)
 		sendMessage(s, ch.ID, "Help!")
+	}
+
+	if strings.HasPrefix(m.Content, "!linkMe") {
+		ch, _ := s.UserChannelCreate(m.Author.ID)
+		if len(strings.Split(m.Content, " ")) > 1 && strings.Split(m.Content, " ")[1] != "" {
+			if strings.Split(m.Content, " ")[1] == "help" {
+				keys := make([]string, 0, len(links))
+				for key := range links {
+					keys = append(keys, key)
+				}
+				sendMessage(s, ch.ID, fmt.Sprintf("```Available links are: \n!linkMe %s ```", strings.Join(keys, "\n!linkMe ")))
+				return
+			}
+			if links[strings.Split(m.Content, " ")[1]] != "" {
+				sendMessage(s, ch.ID, fmt.Sprintf("%s :  %s ", strings.Split(m.Content, " ")[1], links[strings.Split(m.Content, " ")[1]]))
+				return
+			}
+		}
+		sendMessage(s, ch.ID, "```Invalid argument for command !linkMe for valid options try \n try !linkMe help  ```")
 	}
 }
 

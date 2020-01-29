@@ -15,6 +15,11 @@ type match struct {
 	TimeStamp string `json:"TimeStamp"`
 }
 
+var links = map[string]string{
+	"mhwi_deco_rates": "https://mhworld.kiranico.com/decorations",
+	"mh_rage_reddit":  "https://www.reddit.com/r/monsterhunterrage/",
+}
+
 func getDotaMatches() map[string][]match {
 	tourneyMap := make(map[string][]match)
 
