@@ -95,6 +95,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		sendMessage(s, m.ChannelID, fmt.Sprintf("```%s \n \t More ...```", outString[0]))
 	}
 
+	// If the message is !linkMe <word> reply with link for <word> if exist
 	if strings.HasPrefix(m.Content, "!linkMe") {
 		ch, _ := s.UserChannelCreate(m.Author.ID)
 		sendMessage(s, ch.ID, utils.GetLinkForMessage(m.Content))
