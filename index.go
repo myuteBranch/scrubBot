@@ -97,21 +97,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, "!linkMe") {
 		ch, _ := s.UserChannelCreate(m.Author.ID)
-		if len(strings.Split(m.Content, " ")) > 1 && strings.Split(m.Content, " ")[1] != "" {
-			if strings.Split(m.Content, " ")[1] == "help" {
-				keys := make([]string, 0, len(utils.Links))
-				for key := range utils.Links {
-					keys = append(keys, key)
-				}
-				sendMessage(s, ch.ID, fmt.Sprintf("```Available links are: \n!linkMe %s ```", strings.Join(keys, "\n!linkMe ")))
-				return
-			}
-			if utils.Links[strings.Split(m.Content, " ")[1]] != "" {
-				sendMessage(s, ch.ID, fmt.Sprintf("%s :  %s ", strings.Split(m.Content, " ")[1], utils.Links[strings.Split(m.Content, " ")[1]]))
-				return
-			}
-		}
-		sendMessage(s, ch.ID, "```Invalid argument for command !linkMe for valid options try \n try !linkMe help  ```")
+		sendMessage(s, ch.ID, utils.GetLinkForMessage(m.Content))
 	}
 }
 
