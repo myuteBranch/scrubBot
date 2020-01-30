@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"fmt"
@@ -9,19 +9,16 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-type match struct {
+// Match type
+type Match struct {
 	LeftTeam  string `json:"LeftTeam"`
 	RightTeam string `json:"RightTeam"`
 	TimeStamp string `json:"TimeStamp"`
 }
 
-var links = map[string]string{
-	"mhwi_deco_rates": "https://mhworld.kiranico.com/decorations",
-	"mh_rage_reddit":  "https://www.reddit.com/r/monsterhunterrage/",
-}
-
-func getDotaMatches() map[string][]match {
-	tourneyMap := make(map[string][]match)
+// GetDotaMatches returns a set of web scapred matches
+func GetDotaMatches() map[string][]Match {
+	tourneyMap := make(map[string][]Match)
 
 	// Make HTTP request
 	response, err := http.Get("https://liquipedia.net/dota2/Liquipedia:Upcoming_and_ongoing_matches")
@@ -43,7 +40,7 @@ func getDotaMatches() map[string][]match {
 		timeStamp := strings.TrimSpace(s.Find(".timer-object-countdown-only").Text())
 		tourney := strings.TrimSpace(s.Find("a").Last().Text())
 
-		tourneyMap[tourney] = append(tourneyMap[tourney], match{
+		tourneyMap[tourney] = append(tourneyMap[tourney], Match{
 			LeftTeam:  leftTeam,
 			RightTeam: rightTeam,
 			TimeStamp: timeStamp,
@@ -53,7 +50,8 @@ func getDotaMatches() map[string][]match {
 	return tourneyMap
 }
 
-func getFormatedMatches(tourneyMap map[string][]match) string {
+// GetFormatedMatches returns a formated string of matches
+func GetFormatedMatches(tourneyMap map[string][]Match) string {
 	returnString := "Upcoming Dota Matches \n"
 	for tourney, matches := range tourneyMap {
 		returnString += fmt.Sprintf("%s \n", tourney)
@@ -65,7 +63,8 @@ func getFormatedMatches(tourneyMap map[string][]match) string {
 	return returnString
 }
 
-func chunkString(s string, chunkSize int) []string {
+// ChunkString chunks a string to a given size
+func ChunkString(s string, chunkSize int) []string {
 	var chunks []string
 	runes := []rune(s)
 
