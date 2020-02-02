@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/myuteBranch/scrubBot/utils"
-	"github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/myuteBranch/scrubBot/utils"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -23,20 +23,15 @@ import (
 // 	flag.Parse()
 // }
 
-var log = logrus.New()
-
-func init() {
-	log.SetLevel(logrus.InfoLevel)
-}
-
 func main() {
 
 	Token := os.Getenv("bot_token")
-	log.Trace("Bot Token = ", Token)
+	utils.Log.Trace("Bot Token = ", Token)
+
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
-		log.Info("error creating Discord session,", err)
+		utils.Log.Info("error creating Discord session,", err)
 		return
 	}
 
@@ -46,12 +41,12 @@ func main() {
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
 	if err != nil {
-		log.Fatal("error opening connection,", err)
+		utils.Log.Fatal("error opening connection,", err)
 		return
 	}
 
 	// Wait here until CTRL-C or other term signal is received.
-	log.Info("Bot is now running.  Press CTRL-C to exit.")
+	utils.Log.Info("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
@@ -63,14 +58,14 @@ func main() {
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the autenticated bot has access to.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	log.Debug("Message Recieved : ", m.Content, " from : ", m.Author.Username)
+	utils.Log.Debug("Message Recieved : ", m.Content, " from : ", m.Author.Username)
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 	if !strings.Contains(m.Content, "!") {
-		log.Debug("Message Recieved : does not have an !")
+		utils.Log.Debug("Message Recieved : does not have an !")
 		return
 	}
 	// If the message is "ping" reply with "Pong!"
@@ -105,6 +100,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 func sendMessage(s *discordgo.Session, channelID string, writeString string) {
 	_, err := s.ChannelMessageSend(channelID, writeString)
 	if err != nil {
-		log.Error("error sending match data", err)
+		utils.Log.Error("error sending match data", err)
 	}
 }

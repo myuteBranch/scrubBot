@@ -1,10 +1,15 @@
 package utils
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -16,8 +21,62 @@ type Match struct {
 	TimeStamp string `json:"TimeStamp"`
 }
 
+func getDataFromFile() (map[string][]Match, error) {
+	tourneyMap := make(map[string][]Match)
+	f, fErr := os.Open("./matches.json")
+	if fErr != nil {
+		return tourneyMap, errors.New("file does not exist")
+	}
+	fi, _ := f.Stat()
+	t1 := time.Now()
+	Log.Debug(fi.ModTime())
+	Log.Debug(t1.Sub(fi.ModTime()).Hours())
+	if t1.Sub(fi.ModTime()).Hours() > 24.0 {
+		return tourneyMap, errors.New("file is too old")
+	}
+	byteValue, _ := ioutil.ReadAll(f)
+	em := json.Unmarshal(byteValue, &tourneyMap)
+
+	if em != nil {
+		panic(em)
+	}
+	return tourneyMap, nil
+}
+
+func writeToFile(data map[string][]Match) {
+
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+
+	// sanity check
+	// Log.Info(string(jsonData))
+
+	// write to JSON file
+
+	jsonFile, err := os.Create("./matches.json")
+
+	if err != nil {
+		panic(err)
+	}
+	defer jsonFile.Close()
+
+	jsonFile.Write(jsonData)
+	jsonFile.Close()
+	Log.Info("JSON data written to ", jsonFile.Name())
+
+}
+
 // GetDotaMatches returns a set of web scapred matches
 func GetDotaMatches() map[string][]Match {
+	data, err := getDataFromFile()
+	if err == nil {
+		Log.Info("Loading data from local file")
+		return data
+	}
+	Log.Info(err)
+
 	tourneyMap := make(map[string][]Match)
 
 	// Make HTTP request
@@ -47,6 +106,8 @@ func GetDotaMatches() map[string][]Match {
 		})
 
 	})
+	writeToFile(tourneyMap)
+
 	return tourneyMap
 }
 
