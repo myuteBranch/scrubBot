@@ -1,6 +1,8 @@
 package utils
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetLinkForMessage(t *testing.T) {
 	link := GetLinkForMessage("!linkMe mhwi_deco_rates")
